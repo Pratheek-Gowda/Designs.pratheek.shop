@@ -3,40 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin Login</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Login & Sign Up</title>
 </head>
 <body>
-  <header>
-    <h1>Admin Login</h1>
-  </header>
-  <main>
-    <form id="loginForm">
-      <label for="username">Username:</label><br />
-      <input type="text" id="username" name="username" required /><br /><br />
-      <label for="password">Password:</label><br />
-      <input type="password" id="password" name="password" required /><br /><br />
-      <button type="submit">Login</button>
-    </form>
-    <p id="errorMsg" style="color:red;"></p>
-  </main>
+  <h1>Sign In</h1>
+  <form id="signInForm">
+    <label>Username:</label><br />
+    <input type="text" id="signinUsername" required /><br />
+    <label>Password:</label><br />
+    <input type="password" id="signinPassword" required /><br />
+    <button type="submit">Sign In</button>
+  </form>
+
+  <h1>Sign Up</h1>
+  <form id="signUpForm">
+    <label>Full Name:</label><br />
+    <input type="text" id="signupFullName" required /><br />
+    <label>Username:</label><br />
+    <input type="text" id="signupUsername" required /><br />
+    <label>Password:</label><br />
+    <input type="password" id="signupPassword" required /><br />
+    <button type="submit">Sign Up</button>
+  </form>
+
+  <p id="message" style="color:red;"></p>
+
   <script>
-    document.getElementById('loginForm').addEventListener('submit', function (e) {
+    const messageEl = document.getElementById('message');
+
+    document.getElementById('signInForm').addEventListener('submit', async e => {
       e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+      const username = document.getElementById('signinUsername').value;
+      const password = document.getElementById('signinPassword').value;
 
-      // Change the password here as needed
-      const adminUser = 'admin';
-      const adminPass = 'uch'; // Set your desired password
+      const res = await fetch('/.netlify/functions/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'signin', username, password }),
+      });
 
-      if (username === adminUser && password === adminPass) {
-        // Redirect to admin page on successful login
-        window.location.href = 'admin.html';
+      const data = await res.json();
+
+      if (res.ok) {
+        window.location.href = 'https://pratheek.shop';
       } else {
-        document.getElementById('errorMsg').textContent = 'Invalid username or password';
+        messageEl.textContent = data.error || 'Sign In Failed';
+      }
+    });
+
+    document.getElementById('signUpForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const fullName = document.getElementById('signupFullName').value;
+      const username = document.getElementById('signupUsername').value;
+      const password = document.getElementById('signupPassword').value;
+
+      const res = await fetch('/.netlify/functions/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'signup', fullName, username, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        messageEl.style.color = 'green';
+        messageEl.textContent = 'Sign Up successful! Please sign in.';
+        document.getElementById('signUpForm').reset();
+      } else {
+        messageEl.style.color = 'red';
+        messageEl.textContent = data.error || 'Sign Up Failed';
       }
     });
   </script>
 </body>
 </html>
+
