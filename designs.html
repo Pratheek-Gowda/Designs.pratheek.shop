@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Designs Gallery</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    #designImage {
+      max-width: 90%;
+      max-height: 500px;
+      display: block;
+      margin: 20px auto;
+      border: 2px solid #333;
+      border-radius: 8px;
+    }
+    .nav-buttons {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .nav-buttons button {
+      padding: 8px 16px;
+      margin: 0 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Designs Gallery</h1>
+  </header>
+  <main>
+    <img id="designImage" src="" alt="Design Image" />
+    <div class="nav-buttons">
+      <button id="prevBtn">Previous</button>
+      <button id="nextBtn">Next</button>
+    </div>
+    <p id="noImagesMsg" style="color: red; text-align: center;"></p>
+  </main>
+  <script>
+    let images = [];
+    let currentIndex = 0;
+
+    async function fetchImages() {
+      try {
+        const res = await fetch('/.netlify/functions/api');
+        const data = await res.json();
+        if (res.ok && data.images && data.images.length > 0) {
+          images = data.images;
+          showImage(0);
+        } else {
+          document.getElementById('noImagesMsg').textContent = 'No designs available.';
+          document.getElementById('designImage').style.display = 'none';
+          document.querySelector('.nav-buttons').style.display = 'none';
+        }
+      } catch (err) {
+        document.getElementById('noImagesMsg').textContent = 'Failed to load designs.';
+      }
+    }
+
+    function showImage(index) {
+      currentIndex = index;
+      const img = document.getElementById('designImage');
+      img.src = images[index];
+      img.alt = `Design Image ${index + 1}`;
+    }
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if (images.length > 0) {
+        const nextIndex = (currentIndex + 1) % images.length;
+        showImage(nextIndex);
+      }
+    });
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      if (images.length > 0) {
+        const prevIndex = (currentIndex - 1 + images.length) % images.length;
+        showImage(prevIndex);
+      }
+    });
+
+    fetchImages();
+  </script>
+</body>
+</html>
