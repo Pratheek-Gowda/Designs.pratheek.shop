@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin - Upload Designs</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Admin - Upload Design Image Link</h1>
+  </header>
+  <main>
+    <form id="uploadForm">
+      <label for="imageUrl">Paste Google Drive Image URL:</label><br />
+      <input type="url" id="imageUrl" name="imageUrl" required placeholder="https://drive.google.com/..." style="width: 80%;" /><br /><br />
+      <button type="submit">Upload</button>
+    </form>
+    <p id="responseMsg"></p>
+  </main>
+  <script>
+    document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const imageUrl = document.getElementById('imageUrl').value;
+      const responseMsg = document.getElementById('responseMsg');
+      responseMsg.textContent = 'Uploading...';
+
+      try {
+        const response = await fetch('/.netlify/functions/api', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ imageUrl }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          responseMsg.style.color = 'green';
+          responseMsg.textContent = 'Image link uploaded successfully!';
+          document.getElementById('uploadForm').reset();
+        } else {
+          responseMsg.style.color = 'red';
+          responseMsg.textContent = 'Upload failed: ' + (result.error || 'Unknown error');
+        }
+      } catch (error) {
+        responseMsg.style.color = 'red';
+        responseMsg.textContent = 'Upload failed: ' + error.message;
+      }
+    });
+  </script>
+</body>
+</html>
