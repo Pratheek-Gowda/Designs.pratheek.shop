@@ -3,78 +3,141 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login & Sign Up</title>
+  <title>Login - Glassmorphism Style</title>
+  <style>
+    /* Background gradient */
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Glassmorphism card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 24px;
+      padding: 40px 30px;
+      width: 320px;
+      box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+
+    .glass-card h2 {
+      text-align: center;
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+
+    .input-group {
+      margin-bottom: 24px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      color: #f0f0f0;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 12px;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.25);
+      color: #222;
+      box-shadow: inset 1px 1px 5px rgba(255,255,255,0.5),
+                  inset -1px -1px 5px rgba(0,0,0,0.2);
+      transition: background 0.3s ease;
+    }
+
+    .input-group input:focus {
+      background: rgba(255, 255, 255, 0.45);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px 0;
+      border: none;
+      border-radius: 24px;
+      background: linear-gradient(45deg, #ff6a00, #ee0979);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      transition: box-shadow 0.3s ease;
+      box-shadow: 0 4px 15px rgba(238, 9, 121, 0.6);
+    }
+
+    button:hover {
+      box-shadow: 0 8px 30px rgba(255, 106, 0, 0.8);
+    }
+
+    .message {
+      text-align: center;
+      margin-top: 16px;
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
-  <h1>Sign In</h1>
-  <form id="signInForm">
-    <label>Username:</label><br />
-    <input type="text" id="signinUsername" required /><br />
-    <label>Password:</label><br />
-    <input type="password" id="signinPassword" required /><br />
-    <button type="submit">Sign In</button>
-  </form>
-
-  <h1>Sign Up</h1>
-  <form id="signUpForm">
-    <label>Full Name:</label><br />
-    <input type="text" id="signupFullName" required /><br />
-    <label>Username:</label><br />
-    <input type="text" id="signupUsername" required /><br />
-    <label>Password:</label><br />
-    <input type="password" id="signupPassword" required /><br />
-    <button type="submit">Sign Up</button>
-  </form>
-
-  <p id="message" style="color:red;"></p>
+  <div class="glass-card">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <div class="input-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter username" required />
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter password" required />
+      </div>
+      <button type="submit">Sign In</button>
+    </form>
+    <p class="message" id="message"></p>
+  </div>
 
   <script>
-    const messageEl = document.getElementById('message');
+    const form = document.getElementById('loginForm');
+    const message = document.getElementById('message');
 
-    document.getElementById('signInForm').addEventListener('submit', async e => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const username = document.getElementById('signinUsername').value;
-      const password = document.getElementById('signinPassword').value;
+      message.textContent = '';
 
-      const res = await fetch('/.netlify/functions/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'signin', username, password }),
-      });
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
 
-      const data = await res.json();
+      try {
+        const response = await fetch('/.netlify/functions/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'signin', username, password }),
+        });
 
-      if (res.ok) {
-        window.location.href = 'https://pratheek.shop';
-      } else {
-        messageEl.textContent = data.error || 'Sign In Failed';
-      }
-    });
+        const data = await response.json();
 
-    document.getElementById('signUpForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const fullName = document.getElementById('signupFullName').value;
-      const username = document.getElementById('signupUsername').value;
-      const password = document.getElementById('signupPassword').value;
-
-      const res = await fetch('/.netlify/functions/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'signup', fullName, username, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        messageEl.style.color = 'green';
-        messageEl.textContent = 'Sign Up successful! Please sign in.';
-        document.getElementById('signUpForm').reset();
-      } else {
-        messageEl.style.color = 'red';
-        messageEl.textContent = data.error || 'Sign Up Failed';
+        if (response.ok) {
+          // Redirect on success
+          window.location.href = 'https://pratheek.shop';
+        } else {
+          message.textContent = data.error || 'Login Failed';
+          message.style.color = 'red';
+        }
+      } catch (err) {
+        message.textContent = 'Server error: ' + err.message;
+        message.style.color = 'red';
       }
     });
   </script>
 </body>
 </html>
-
