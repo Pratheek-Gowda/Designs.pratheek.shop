@@ -3,33 +3,42 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Login - Glassmorphism Style</title>
+  <title>Login & Sign Up - Glassmorphism</title>
   <style>
-    /* Background gradient */
     body {
       margin: 0;
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       background: linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #fff;
+      padding: 20px;
     }
 
-    /* Glassmorphism card */
+    .container {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      max-width: 900px;
+      width: 100%;
+      justify-content: center;
+    }
+
     .glass-card {
       background: rgba(255, 255, 255, 0.15);
       border-radius: 24px;
-      padding: 40px 30px;
-      width: 320px;
       box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.18);
-      color: #fff;
+      padding: 40px 30px;
+      width: 320px;
+      box-sizing: border-box;
     }
 
-    .glass-card h2 {
+    h2 {
       text-align: center;
       margin-bottom: 24px;
       font-weight: 600;
@@ -39,14 +48,14 @@
       margin-bottom: 24px;
     }
 
-    .input-group label {
+    label {
       display: block;
       margin-bottom: 8px;
       font-size: 0.95rem;
       color: #f0f0f0;
     }
 
-    .input-group input {
+    input {
       width: 100%;
       padding: 12px 15px;
       border-radius: 12px;
@@ -58,9 +67,10 @@
       box-shadow: inset 1px 1px 5px rgba(255,255,255,0.5),
                   inset -1px -1px 5px rgba(0,0,0,0.2);
       transition: background 0.3s ease;
+      box-sizing: border-box;
     }
 
-    .input-group input:focus {
+    input:focus {
       background: rgba(255, 255, 255, 0.45);
     }
 
@@ -86,58 +96,122 @@
       text-align: center;
       margin-top: 16px;
       font-weight: 600;
+      min-height: 24px;
+    }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="glass-card">
-    <h2>Login</h2>
-    <form id="loginForm">
-      <div class="input-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Enter username" required />
-      </div>
-      <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter password" required />
-      </div>
-      <button type="submit">Sign In</button>
-    </form>
-    <p class="message" id="message"></p>
+
+  <div class="container">
+    <!-- Sign In Card -->
+    <div class="glass-card">
+      <h2>Sign In</h2>
+      <form id="signInForm">
+        <div class="input-group">
+          <label for="signinUsername">Username</label>
+          <input type="text" id="signinUsername" placeholder="Enter username" required />
+        </div>
+        <div class="input-group">
+          <label for="signinPassword">Password</label>
+          <input type="password" id="signinPassword" placeholder="Enter password" required />
+        </div>
+        <button type="submit">Sign In</button>
+      </form>
+      <p class="message" id="signinMessage"></p>
+    </div>
+
+    <!-- Sign Up Card -->
+    <div class="glass-card">
+      <h2>Sign Up</h2>
+      <form id="signUpForm">
+        <div class="input-group">
+          <label for="signupFullName">Full Name</label>
+          <input type="text" id="signupFullName" placeholder="Enter your full name" required />
+        </div>
+        <div class="input-group">
+          <label for="signupUsername">Username</label>
+          <input type="text" id="signupUsername" placeholder="Choose a username" required />
+        </div>
+        <div class="input-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" placeholder="Choose a password" required />
+        </div>
+        <button type="submit">Sign Up</button>
+      </form>
+      <p class="message" id="signupMessage"></p>
+    </div>
   </div>
 
   <script>
-    const form = document.getElementById('loginForm');
-    const message = document.getElementById('message');
+    const signInForm = document.getElementById('signInForm');
+    const signUpForm = document.getElementById('signUpForm');
 
-    form.addEventListener('submit', async (e) => {
+    const signinMessage = document.getElementById('signinMessage');
+    const signupMessage = document.getElementById('signupMessage');
+
+    signInForm.addEventListener('submit', async e => {
       e.preventDefault();
-      message.textContent = '';
-
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+      signinMessage.textContent = '';
+      const username = document.getElementById('signinUsername').value;
+      const password = document.getElementById('signinPassword').value;
 
       try {
-        const response = await fetch('/.netlify/functions/auth', {
+        const res = await fetch('/.netlify/functions/auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'signin', username, password }),
         });
+        const data = await res.json();
 
-        const data = await response.json();
-
-        if (response.ok) {
-          // Redirect on success
+        if (res.ok) {
           window.location.href = 'https://pratheek.shop';
         } else {
-          message.textContent = data.error || 'Login Failed';
-          message.style.color = 'red';
+          signinMessage.style.color = 'red';
+          signinMessage.textContent = data.error || 'Sign In failed';
         }
       } catch (err) {
-        message.textContent = 'Server error: ' + err.message;
-        message.style.color = 'red';
+        signinMessage.style.color = 'red';
+        signinMessage.textContent = 'Server error: ' + err.message;
+      }
+    });
+
+    signUpForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      signupMessage.textContent = '';
+      const fullName = document.getElementById('signupFullName').value;
+      const username = document.getElementById('signupUsername').value;
+      const password = document.getElementById('signupPassword').value;
+
+      try {
+        const res = await fetch('/.netlify/functions/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'signup', fullName, username, password }),
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          signupMessage.style.color = 'lime';
+          signupMessage.textContent = 'Sign Up successful! You can now sign in.';
+          signUpForm.reset();
+        } else {
+          signupMessage.style.color = 'red';
+          signupMessage.textContent = data.error || 'Sign Up failed';
+        }
+      } catch (err) {
+        signupMessage.style.color = 'red';
+        signupMessage.textContent = 'Server error: ' + err.message;
       }
     });
   </script>
+
 </body>
 </html>
