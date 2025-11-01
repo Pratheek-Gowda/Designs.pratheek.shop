@@ -26,7 +26,7 @@
       responseMsg.textContent = 'Uploading...';
 
       try {
-        const response = await fetch('/.netlify/functions/api', {
+        const response = await fetch('/netlify/functions/api', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
